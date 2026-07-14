@@ -32,7 +32,7 @@ exports.transferGudang = async (req, res, next) => {
       fromWarehouseId: validatedData.fromWarehouseId,
       toWarehouseId: validatedData.toWarehouseId,
       quantity: validatedData.quantity,
-      userId: req.user.id // Diambil dari token verifikasi
+      userId: req.user.id
     });
 
     res.status(200).json({
@@ -43,7 +43,6 @@ exports.transferGudang = async (req, res, next) => {
     if (error.name === 'ZodError') {
       return next(new AppError(error.errors[0].message, 400));
     }
-    // Tangkap error kustom dari transaksi DB model
     if (error.message.includes('tidak mencukupi')) {
       return next(new AppError(error.message, 400));
     }

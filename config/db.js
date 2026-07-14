@@ -1,4 +1,4 @@
-const mysql = require('mysql2'); // Import mysql2 murni
+const mysql = require('mysql2');
 require('dotenv').config();
 
 // Buat pool koneksi seperti biasa
@@ -12,7 +12,6 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-// KUNCI PERBAIKAN: Ubah pool menjadi berbasis Promise agar mendukung .execute() asinkronus
 const poolPromise = pool.promise();
 
 module.exports = poolPromise;

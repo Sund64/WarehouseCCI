@@ -1,7 +1,6 @@
 const db = require('../config/db');
 
 class InventoryModel {
-  // Bonus: Pagination, Search, Filtering
   static async getStockList({ page = 1, limit = 10, search = '', warehouseId }) {
     const offset = (page - 1) * limit;
     let query = `
@@ -30,13 +29,11 @@ class InventoryModel {
     return rows;
   }
 
-  // Database Transaction untuk Transfer Stok
   static async transferStock({ productId, fromWarehouseId, toWarehouseId, quantity, userId }) {
     const connection = await db.getConnection();
     await connection.beginTransaction();
 
     try {
-      // 1. Cek stok di gudang asal
       const [sourceStock] = await connection.execute(
         'SELECT quantity FROM Inventories WHERE warehouse_id = ? AND product_id = ? FOR UPDATE',
         [fromWarehouseId, productId]
@@ -46,13 +43,11 @@ class InventoryModel {
         throw new Error('Stok gudang asal tidak mencukupi untuk transfer.');
       }
 
-      // 2. Kurangi stok di gudang asal
       await connection.execute(
         'UPDATE Inventories SET quantity = quantity - ? WHERE warehouse_id = ? AND product_id = ?',
         [quantity, fromWarehouseId, productId]
       );
 
-      // 3. Tambahkan stok di gudang tujuan (Upsert)
       const [destStock] = await connection.execute(
         'SELECT quantity FROM Inventories WHERE warehouse_id = ? AND product_id = ? FOR UPDATE',
         [toWarehouseId, productId]
@@ -70,7 +65,6 @@ class InventoryModel {
         );
       }
 
-      // 4. Catat Mutasi ke Audit Log (StockMutations)
       await connection.execute(
         `INSERT INTO StockMutations (user_id, product_id, from_warehouse_id, to_warehouse_id, quantity, type) 
          VALUES (?, ?, ?, ?, ?, 'TRANSFER')`,

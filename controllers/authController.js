@@ -56,11 +56,10 @@ exports.login = async (req, res, next) => {
 
     const tokens = generateTokens(user);
 
-    // Kirim Refresh Token di HTTP-Only Cookie untuk keamanan ekstra
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 Hari
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
